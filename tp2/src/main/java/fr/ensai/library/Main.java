@@ -14,5 +14,9 @@ public class Main {
                 423);
 
         System.out.println(fellowshipOfTheRing.toString());
+
+        Library library = new Library("My Library");
+        library.loadBooksFromCSV("/home/onyxia/work/ENSAI-2A-Java-TP/tp2/src/main/resources/books.csv");
+        library.displayBooks();
     }
 }
