@@ -11,26 +11,86 @@ import java.net.URL;
 
 public class Library {
     private String name;
-    private List<Book> books;
+    private List<Item> items;
+    private List<Loan> activeLoans;
+    private List<Loan> completedLoans;
 
-    public Library(String myName) {
-        this.name = myName;
-        this.books = new ArrayList<>();
+    public Library(String name) {
+        this.name = name;
+        this.items = new ArrayList<>();
+        this.activeLoans = new ArrayList<>();
+        this.completedLoans = new ArrayList<>();
     }
 
-    public void addBook(Book book) {
-        books.add(book);
+    public void addItem(Item item) {
+        items.add(item);
     }
 
-    public void displayBooks() {
-        if (books.isEmpty()) {
-            System.out.println("The library has no books.");
+    public void displayItems() {
+        if (items.isEmpty()) {
+            System.out.println("The library has no items.");
         } else {
-            for (Book book : books) {
-                System.out.println(book);
+            for (Item item : items) {
+                System.out.println(item);
             }
         }
     }
+
+    public Loan findActiveLoanForItem(Item item) {
+        for (Loan loan : activeLoans) {
+            if (loan.getItem().equals(item)) {
+                return loan;
+            }
+        }
+        return null;
+    }
+
+    public List<Book> getBooksByAuthor(Author author) {
+        List<Book> booksByAuthor = new ArrayList<>();
+        for (Item item : items) {
+            if (item instanceof Book && ((Book) item).getAuthor().equals(author)) {
+                booksByAuthor.add((Book) item);
+            }
+        }
+        return booksByAuthor;
+    }
+
+    public boolean loanItem(Item item, Student student) {
+        if (findActiveLoanForItem(item) == null) {
+            Loan loan = new Loan(student, item);
+            activeLoans.add(loan);
+            System.out.println("Loan created: " + loan);
+            return true;
+        }
+        System.out.println("Item is already loaned.");
+        return false;
+    }
+
+
+    public boolean returnItem(Item item) {
+        Loan loan = findActiveLoanForItem(item);
+        if (loan != null) {
+            loan.setReturnDate(new Date());
+            activeLoans.remove(loan);
+            completedLoans.add(loan);
+            System.out.println("Item returned: " + loan);
+            return true;
+        }
+        System.out.println("No active loan found for this item.");
+        return false;
+    }
+
+    public void displayActiveLoans() {
+        if (activeLoans.isEmpty()) {
+            System.out.println("No active loans.");
+        } else {
+            for (Loan loan : activeLoans) {
+                System.out.println(loan);
+            }
+        }
+    }
+
+    
 
     public void loadBooksFromCSV(String filePath) {
 
@@ -58,9 +118,9 @@ public class Library {
                         authors.put(authorName, author);
                         System.out.println(author.toString());
                     }
-                    Book book = new Book(isbn, title, author, year, pageCount);
+                    Item item = new Item(isbn, title, author, year, pageCount);
 
-                    this.addBook(book);
+                    this.addItem(item);
                 }
             }
         } catch (
